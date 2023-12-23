@@ -8,23 +8,19 @@ import matplotlib.animation as animation
 
 class Fork:
     def __init__(self, index: int):
+        # Her çatalın bir indeksi, bir kilit (thread güvenliği için) ve diğer bilgileri bulunur.
         self.index: int = index
         self.lock: threading.Lock = threading.Lock()
         self.picked_up: bool = False
         self.owner: int = -1
-
-    def pick_up(self, owner: int):
-        attempts = 0
-        while attempts < 2:           
-            if self.lock.acquire():
-                self.owner = owner        
-                self.picked_up = True     
-                return True
-            else:
-                attempts += 1            
-                time.sleep(random.uniform(0.1, 0.5))  
-        return False
     
+    def pick_up(self, owner: int):
+        if self.lock.acquire():
+            self.owner = owner        
+            self.picked_up = True     
+            return True
+        return False
+
     def put_down(self):
         self.lock.release()             
         self.picked_up = False
@@ -209,9 +205,9 @@ def table(philosophers: list[Philosopher], forks: list[Fork], m: int):
 def main() -> None:
     n: int = 5
     m: int = 7
-    forks: list[Fork] = [Fork(i) for i in range(n)]        
+    forks: list[Fork] = [Fork(i) for i in range(n)]         #Forklar olusturuluyor.
     philosophers: list[Philosopher] = [
-        Philosopher(i, forks[i], forks[(i + 1) % n], m) for i in range(n)   
+        Philosopher(i, forks[i], forks[(i + 1) % n], m) for i in range(n)   #Filozoflari sol ve sag fork a gore olusturuyoruz.
     ]
     for philosopher in philosophers:
         philosopher.start()
